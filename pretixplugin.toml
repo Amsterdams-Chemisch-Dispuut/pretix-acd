@@ -1,0 +1,5 @@
+[plugin]
+package = "pretix-acd"
+modules = [ "pretix_acd" ]
+marketplace_name = "acd"
+
