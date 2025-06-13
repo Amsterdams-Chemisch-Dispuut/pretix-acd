@@ -1,28 +1,34 @@
-from django.utils.translation import gettext_lazy
-
+import logging
 from . import __version__
 
-try:
-    from pretix.base.plugins import PluginConfig
-except ImportError:
-    raise RuntimeError("Please use pretix 2.7 or above to run this plugin!")
+from django.apps import AppConfig
+from django.utils.translation import gettext_lazy
+
+from pretix_acd.settings import DEFAULTS
 
 
-class PluginApp(PluginConfig):
-    default = True
+logger = logging.getLogger(__name__)
+
+
+class PluginApp(AppConfig):
     name = "pretix_acd"
-    verbose_name = "PretixACD"
+    verbose_name = "Pretix for acd"
 
     class PretixPluginMeta:
-        name = gettext_lazy("PretixACD")
-        author = "ICT Commissie"
-        description = gettext_lazy("Enable global Molliee key setting.")
+        name = gettext_lazy("Pretix for acd")
+        author = "ICT Commissie des ACDs"
+        description = gettext_lazy(
+            "Study association ACD mollie key setter for pretix"
+        )
         visible = True
         version = __version__
-        category = "CUSTOMIZATION"
-        compatibility = "pretix>=2.7.0"
-        settings_links = []
-        navigation_links = []
 
     def ready(self):
-        from . import signals  # NOQA
+        from pretix.base.settings import settings_hierarkey
+
+        for k, v in DEFAULTS.items():
+            settings_hierarkey.add_default(k, v["default"], v["type"])
+            logger.info(f"Adding '{k}' default setting.")
+
+
+logger.info("Loaded pretix_acd configurations")
